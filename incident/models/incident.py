@@ -1,3 +1,25 @@
+"""
+incident/models/incident.py
+
+Pydantic model representing a ServiceNow incident.
+Field names map directly to the ServiceNow REST API table fields.
+
+Required fields:
+    short_description   - Brief summary shown as the incident title (maps to Short description)
+    description         - Full incident details (maps to Description)
+
+Optional fields:
+    caller_id           - User who reported the incident (maps to Caller)
+    category            - Incident category e.g. Software (maps to Category)
+    subcategory         - Incident subcategory (maps to Subcategory)
+    business_service    - Affected business service (maps to Service)
+    impact              - Business impact: 1=High, 2=Medium, 3=Low (maps to Impact)
+    urgency             - Resolution urgency: 1=High, 2=Medium, 3=Low (maps to Urgency)
+    state               - Incident state: 1=New (maps to State)
+    contact_type        - Channel through which incident was reported (maps to Channel)
+    assignment_group    - Group responsible for resolving the incident (maps to Assignment group)
+    assigned_to         - Individual assigned to resolve the incident (maps to Assigned to)
+"""
 from typing import Optional
 from pydantic import BaseModel
 

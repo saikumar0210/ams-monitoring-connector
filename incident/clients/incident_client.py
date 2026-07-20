@@ -1,3 +1,10 @@
+"""
+incident/clients/incident_client.py
+
+Abstract base class defining the interface all incident provider clients must implement.
+New provider clients (ServiceNow, Jira, PagerDuty, etc.) must extend this class
+and implement all abstract methods.
+"""
 from abc import ABC
 from abc import abstractmethod
 

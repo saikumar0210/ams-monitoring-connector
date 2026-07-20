@@ -1,3 +1,9 @@
+"""
+incident/clients/pagerduty_client.py
+
+Incident client stub for PagerDuty.
+Not yet implemented — raises NotImplementedError for all operations.
+"""
 from incident.clients.incident_client import IncidentClient
 from incident.models.incident import Incident
 

@@ -1,3 +1,10 @@
+"""
+monitoring/clients/monitoring_client.py
+
+Abstract base class defining the interface all monitoring provider clients must implement.
+New provider clients (New Relic, Datadog, Splunk, etc.) must extend this class
+and implement all abstract methods.
+"""
 from abc import ABC
 from abc import abstractmethod
 

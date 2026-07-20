@@ -1,3 +1,9 @@
+"""
+monitoring/clients/grafana_client.py
+
+Monitoring client stub for Grafana.
+Not yet implemented — raises NotImplementedError for all operations.
+"""
 from monitoring.clients.monitoring_client import MonitoringClient
 
 

@@ -1,3 +1,9 @@
+"""
+monitoring/clients/datadog_client.py
+
+Monitoring client stub for Datadog.
+Not yet implemented — raises NotImplementedError for all operations.
+"""
 from monitoring.clients.monitoring_client import MonitoringClient
 
 

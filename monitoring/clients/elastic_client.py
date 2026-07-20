@@ -1,3 +1,9 @@
+"""
+monitoring/clients/elastic_client.py
+
+Monitoring client stub for Elastic.
+Not yet implemented — raises NotImplementedError for all operations.
+"""
 from monitoring.clients.monitoring_client import MonitoringClient
 
 
