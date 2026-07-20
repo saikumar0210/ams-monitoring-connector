@@ -18,7 +18,7 @@ class IncidentService:
         self,
         incident: Incident
     ):
-        logger.info(f"[STEP 1] Creating incident | Title : {incident.title} | Severity : {incident.severity}")
+        logger.info(f"[STEP 1] Creating incident | Title : {incident.short_description} | Severity : impact={incident.impact}/urgency={incident.urgency}")
         result = self.client.create_incident(incident)
         logger.info("[STEP 2] Incident creation request sent to provider")
         return result

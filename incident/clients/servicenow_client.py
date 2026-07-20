@@ -38,12 +38,22 @@ class ServiceNowClient(IncidentClient):
         logger.info("[STEP 1] Building ServiceNow incident payload")
 
         payload = {
-            "short_description": incident.title,
+            "short_description": incident.short_description,
             "description": incident.description,
-            "category": "Software",
-            "impact": "2",
-            "urgency": "2"
+            "category": incident.category,
+            "subcategory": incident.subcategory,
+            "business_service": incident.business_service,
+            "impact": incident.impact,
+            "urgency": incident.urgency,
+            "state": incident.state,
+            "contact_type": incident.contact_type,
+            "assignment_group": incident.assignment_group,
+            "assigned_to": incident.assigned_to,
+            "caller_id": incident.caller_id,
         }
+
+        # Remove None values — ServiceNow ignores missing fields cleanly
+        payload = {k: v for k, v in payload.items() if v is not None}
 
         logger.info(f"[STEP 2] Sending POST request to ServiceNow | URL : {self.base_url}")
 

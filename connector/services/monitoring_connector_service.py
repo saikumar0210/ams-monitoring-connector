@@ -107,26 +107,19 @@ class MonitoringConnectorService:
                 logger.info(f"[STEP 4.{processed_logs}] Building incident | App: {application} | Service: {service} | Severity: {severity}")
 
                 incident = Incident(
-                    application=application,
-                    service=service,
-                    environment=environment,
-                    severity=severity,
-                    title=message,
+                    short_description=message,
                     description=(
-                        f"""
-Application : {application}
-
-Service : {service}
-
-Environment : {environment}
-
-Severity : {severity}
-
-Message : {message}
-
-Generated automatically from {monitoring_tool}.
-"""
-                    )
+                        f"Application : {application}\n\n"
+                        f"Service : {service}\n\n"
+                        f"Environment : {environment}\n\n"
+                        f"Severity : {severity}\n\n"
+                        f"Message : {message}\n\n"
+                        f"Generated automatically from {monitoring_tool}."
+                    ),
+                    category="Software",
+                    business_service=service,
+                    impact="1" if severity in ("CRITICAL", "critical") else "2",
+                    urgency="1" if severity in ("CRITICAL", "critical") else "2",
                 )
 
                 logger.info(f"[STEP 4.{processed_logs}] Sending incident to incident provider")
