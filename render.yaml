@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: ams-monitoring-connector
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APPLICATION_NAME
+        value: AMS Monitoring Connector
+      - key: APPLICATION_VERSION
+        value: 1.0.0
+      - key: ENVIRONMENT
+        value: PROD
+      - key: MONITORING_PROVIDER
+        value: NEW_RELIC
+      - key: INCIDENT_PROVIDER
+        value: SERVICENOW
+      - key: NEW_RELIC_ACCOUNT_ID
+        sync: false
+      - key: NEW_RELIC_USER_KEY
+        sync: false
+      - key: NEW_RELIC_LICENSE_KEY
+        sync: false
+      - key: NEW_RELIC_REGION
+        value: US
+      - key: DATADOG_API_KEY
+        sync: false
+      - key: DATADOG_APP_KEY
+        sync: false
+      - key: DATADOG_SITE
+        value: datadoghq.com
+      - key: SPLUNK_HOST
+        sync: false
+      - key: SPLUNK_PORT
+        sync: false
+      - key: SPLUNK_USERNAME
+        sync: false
+      - key: SPLUNK_PASSWORD
+        sync: false
+      - key: SPLUNK_HEC_TOKEN
+        sync: false
+      - key: GRAFANA_URL
+        sync: false
+      - key: GRAFANA_TOKEN
+        sync: false
+      - key: SERVICENOW_INSTANCE
+        sync: false
+      - key: SERVICENOW_USERNAME
+        sync: false
+      - key: SERVICENOW_PASSWORD
+        sync: false
