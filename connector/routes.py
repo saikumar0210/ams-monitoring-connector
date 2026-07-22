@@ -4,11 +4,12 @@ connector/routes.py
 Defines all API routes for the AMS Monitoring Connector.
 
 Endpoints:
-    GET  /api/logs                     - Fetch all logs from the monitoring provider
-    GET  /api/logs/errors              - Fetch only error/critical logs
-    GET  /api/logs/service/{name}      - Fetch logs filtered by service name
-    POST /api/logs/query               - Execute a custom provider-specific query
-    POST /api/process-incidents        - Fetch error logs and create incidents in the incident platform
+    GET  /api/logs                        - Fetch all logs from the monitoring provider
+    GET  /api/logs/errors                 - Fetch only error/critical logs
+    GET  /api/logs/service/{name}         - Fetch logs filtered by service name
+    POST /api/logs/query                  - Execute a custom provider-specific query
+    GET  /api/observability/summary       - Observability summary of the system
+    POST /api/process-incidents           - Fetch error logs and create incidents in the incident platform
 """
 from fastapi import APIRouter
 
@@ -76,6 +77,19 @@ def execute_custom_query(
     logger.info(f"[REQUEST] POST /api/logs/query - Query : {request.query}")
     result = connector_service.execute_custom_query(request.query)
     logger.info(f"[RESPONSE] POST /api/logs/query - Returned {len(result)} result(s)")
+    return result
+
+
+# =====================================================
+# Observability
+# =====================================================
+
+# Returns a health summary of the system — total logs, error count, critical count, top error services
+@router.get("/observability/summary")
+def get_observability_summary():
+    logger.info("[REQUEST] GET /api/observability/summary - Building observability summary")
+    result = connector_service.get_observability_summary()
+    logger.info(f"[RESPONSE] GET /api/observability/summary - Total: {result['totalLogs']} | Errors: {result['errorLogs']} | Critical: {result['criticalLogs']}")
     return result
 
 

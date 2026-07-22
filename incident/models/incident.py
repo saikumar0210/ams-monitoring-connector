@@ -5,7 +5,7 @@ Pydantic model representing a ServiceNow incident.
 Field names map directly to the ServiceNow REST API table fields.
 
 Required fields:
-    short_description   - Brief summary shown as the incident title (maps to Short description)
+    short_description   - Brief summary shown as the incident tite (maps to Short description)
     description         - Full incident details (maps to Description)
 
 Optional fields:
@@ -31,7 +31,7 @@ class Incident(BaseModel):
     description: str
 
     # Caller
-    caller_id: Optional[str] = None
+    caller_id: Optional[str] = "admin"  # Defaults to System Administrator
 
     # Category
     category: Optional[str] = "Software"
@@ -39,6 +39,8 @@ class Incident(BaseModel):
 
     # Service
     business_service: Optional[str] = None
+    service_offering: Optional[str] = None  # maps to Service offering
+    cmdb_ci: Optional[str] = None           # maps to Configuration item
 
     # Impact / Urgency (1=High, 2=Medium, 3=Low)
     impact: Optional[str] = "2"
@@ -53,3 +55,5 @@ class Incident(BaseModel):
     # Assignment
     assignment_group: Optional[str] = None
     assigned_to: Optional[str] = None
+    
+    #configuration item (CI) associated with the incident

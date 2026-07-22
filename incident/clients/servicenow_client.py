@@ -60,6 +60,8 @@ class ServiceNowClient(IncidentClient):
             "category": incident.category,                    # e.g. Software
             "subcategory": incident.subcategory,
             "business_service": incident.business_service,    # Affected service
+            "service_offering": incident.service_offering,    # Service offering
+            "cmdb_ci": incident.cmdb_ci,                      # Configuration item
             "impact": incident.impact,                        # 1=High, 2=Medium, 3=Low
             "urgency": incident.urgency,                      # 1=High, 2=Medium, 3=Low
             "state": incident.state,                          # 1=New

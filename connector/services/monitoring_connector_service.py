@@ -84,6 +84,51 @@ class MonitoringConnectorService:
         return result
 
     # =====================================================
+    # Observability
+    # =====================================================
+
+    def get_observability_summary(self):
+        """Fetches all logs and error logs, then returns a health summary of the system."""
+        logger.info("[STEP 1] Building observability summary")
+
+        # Fetch all logs and error logs in parallel context
+        all_logs = self.monitoring_service.get_all_logs()
+        error_logs = self.monitoring_service.get_error_logs()
+
+        # Count critical logs from the error logs list
+        critical_logs = [
+            log for log in error_logs
+            if (log.severity if isinstance(log, LogEntry) else log.get("severity", "")) in ("CRITICAL", "critical")
+        ]
+
+        # Count errors per service for top error services
+        service_counts = {}
+        for log in error_logs:
+            svc = log.service if isinstance(log, LogEntry) else log.get("service", "Unknown")
+            service_counts[svc] = service_counts.get(svc, 0) + 1
+
+        # Sort services by error count descending
+        top_error_services = [
+            {"service": svc, "errorCount": count}
+            for svc, count in sorted(service_counts.items(), key=lambda x: x[1], reverse=True)
+        ]
+
+        from datetime import datetime, timezone
+        summary = {
+            "monitoringProvider": Config.MONITORING_PROVIDER,
+            "incidentProvider": Config.INCIDENT_PROVIDER,
+            "environment": Config.ENVIRONMENT,
+            "totalLogs": len(all_logs),
+            "errorLogs": len(error_logs),
+            "criticalLogs": len(critical_logs),
+            "topErrorServices": top_error_services,
+            "lastChecked": datetime.now(timezone.utc).isoformat()
+        }
+
+        logger.info(f"[STEP 2] Observability summary built | Total: {len(all_logs)} | Errors: {len(error_logs)} | Critical: {len(critical_logs)}")
+        return summary
+
+    # =====================================================
     # Process Incidents
     # =====================================================
 
@@ -105,6 +150,8 @@ class MonitoringConnectorService:
         skipped = 0
         incident_numbers = []
         skipped_reasons = []
+        # Explainability — tracks every agent decision with full reasoning
+        decisions = []
 
         for log in logs:
 
@@ -165,6 +212,16 @@ class MonitoringConnectorService:
                         "reason": agent_data.get("reason", "No reason provided")
                     }
                     skipped_reasons.append(reason)
+                    # Explainability — record the skip decision with full reasoning
+                    decisions.append({
+                        "application": application,
+                        "service": service,
+                        "message": message,
+                        "decision": "SKIPPED",
+                        "error_type": agent_data.get("error_type", "Unknown"),
+                        "reason": agent_data.get("reason", "No reason provided"),
+                        "incident_number": None
+                    })
                     logger.info(f"[STEP 4.{processed_logs}] SKIPPED | Error Type : {reason['error_type']} | Reason : {reason['reason']}")
                     continue
 
@@ -200,6 +257,18 @@ class MonitoringConnectorService:
 
                 incidents_created += 1
                 incident_numbers.append(incident_number)
+                # Explainability — record the create decision with full reasoning
+                decisions.append({
+                    "application": application,
+                    "service": service,
+                    "message": message,
+                    "decision": "CREATED",
+                    "error_type": agent_data.get("error_type", "Unknown"),
+                    "reason": agent_data.get("reason", "System failure detected"),
+                    "impact": agent_data.get("impact"),
+                    "urgency": agent_data.get("urgency"),
+                    "incident_number": incident_number
+                })
 
             except Exception as ex:
                 # Log the failure and continue processing remaining logs
@@ -208,6 +277,26 @@ class MonitoringConnectorService:
 
         logger.info(f"[STEP 5] Incident processing complete | Processed: {processed_logs} | Created: {incidents_created} | Skipped: {skipped} | Failed: {failed}")
 
+        # Log the full explainability + observability summary in Render logs
+        logger.info("[SUMMARY] ========== PIPELINE SUMMARY ==========")
+        logger.info(f"[SUMMARY] Total Logs Processed : {processed_logs}")
+        logger.info(f"[SUMMARY] Incidents Created    : {incidents_created}")
+        logger.info(f"[SUMMARY] Skipped              : {skipped}")
+        logger.info(f"[SUMMARY] Failed               : {failed}")
+        logger.info(f"[SUMMARY] Incident Numbers     : {incident_numbers}")
+        logger.info("[SUMMARY] ========== AGENT DECISIONS ==========")
+        for i, d in enumerate(decisions, 1):
+            logger.info(f"[DECISION {i}] Service     : {d['service']}")
+            logger.info(f"[DECISION {i}] Message     : {d['message']}")
+            logger.info(f"[DECISION {i}] Decision    : {d['decision']}")
+            logger.info(f"[DECISION {i}] Error Type  : {d['error_type']}")
+            logger.info(f"[DECISION {i}] Reason      : {d['reason']}")
+            if d['decision'] == 'CREATED':
+                logger.info(f"[DECISION {i}] Impact      : {d.get('impact')}")
+                logger.info(f"[DECISION {i}] Urgency     : {d.get('urgency')}")
+                logger.info(f"[DECISION {i}] Incident No : {d.get('incident_number')}")
+        logger.info("[SUMMARY] ========================================")
+
         # Return a summary of the full pipeline run
         return {
             "processedLogs": processed_logs,
@@ -215,5 +304,7 @@ class MonitoringConnectorService:
             "skipped": skipped,
             "failed": failed,
             "incidentNumbers": incident_numbers,
-            "skippedReasons": skipped_reasons
+            "skippedReasons": skipped_reasons,
+            # Explainability — full decision log for every processed error log
+            "decisions": decisions
         }
